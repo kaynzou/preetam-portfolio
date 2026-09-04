@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #080e1c;
+  color: #f3ecdd;
+  font-family: var(--font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection {
+  background: #e8823a;
+  color: #0b1420;
+}
+
+/* Campfire flame flicker */
+@keyframes campfire-flicker {
+  0%, 100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+  25%       { transform: scaleY(1.06) scaleX(0.95); opacity: 0.9; }
+  50%       { transform: scaleY(0.92) scaleX(1.04); opacity: 1; }
+  75%       { transform: scaleY(1.04) scaleX(0.97); opacity: 0.85; }
+}
+.flame-1 { animation: campfire-flicker 1.8s ease-in-out infinite; transform-origin: bottom center; }
+.flame-2 { animation: campfire-flicker 1.5s ease-in-out infinite; animation-delay: 0.15s; transform-origin: bottom center; }
+.flame-3 { animation: campfire-flicker 1.3s ease-in-out infinite; animation-delay: 0.3s; transform-origin: bottom center; }
+
+@keyframes bounce-arrow {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+.bounce-arrow {
+  animation: bounce-arrow 1.8s ease-in-out infinite;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid #e8823a;
+  outline-offset: 3px;
+}
