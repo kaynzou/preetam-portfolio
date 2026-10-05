@@ -3,6 +3,9 @@
 import { useMemo, useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import type { Stop } from "@/data/profile";
+
+const isCurrent = (s: Stop) => s.end?.toLowerCase() === "present";
+const dates = (s: Stop) => (s.end ? `${s.start} — ${s.end}` : s.start);
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -177,7 +180,7 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
 
               {stops.map((s, i) => {
                 const p = pts[i];
-                const current = s.end.toLowerCase() === "present";
+                const current = isCurrent(s);
                 const arrived = i < reached;
                 return (
                   <motion.button
@@ -190,7 +193,11 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
                     className="group absolute flex flex-col items-center"
                     style={{ left: `${(p.x / W) * 100}%`, top: `${(p.y / H) * 100}%`, x: "-50%", y: "-50%" }}
                   >
-                    <span className="mb-1 rounded-full bg-[#3a2a1a] px-2 py-0.5 text-[9px] font-bold text-[#f5e6d0]">Lv. {s.level}</span>
+                    {s.level ? (
+                      <span className="mb-1 rounded-full bg-[#3a2a1a] px-2 py-0.5 text-[9px] font-bold text-[#f5e6d0]">Lv. {s.level}</span>
+                    ) : (
+                      <span className="mb-1 h-[17px]" />
+                    )}
                     <motion.span
                       // pops when the ship arrives at this stop
                       animate={arrived ? { scale: [1, 1.3, 1] } : { scale: 1 }}
@@ -216,7 +223,7 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
                     </motion.span>
                     <span className="mt-1 whitespace-nowrap text-[10px] font-semibold text-[#3a2a1a]">{s.company}</span>
                     <span className="whitespace-nowrap text-[9px] text-[#6b5236]">
-                      {s.start} — {s.end}
+                      {dates(s)}
                     </span>
                     {current && <span className="text-[9px] font-bold text-[#2e6b5a]">You are here</span>}
                   </motion.button>
@@ -267,13 +274,13 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
                       <div className="flex items-center gap-2">
                         <span className="grid h-6 w-6 place-items-center rounded-full bg-[#5c4a3a] text-[10px] font-bold text-[#f5e6d0]">{s.company[0]}</span>
                         <h3 className="font-bold text-[#3a2a1a]">{s.company}</h3>
-                        {s.end.toLowerCase() === "present" && <span className="text-[10px] italic text-[#2e6b5a]">current</span>}
+                        {isCurrent(s) && <span className="text-[10px] italic text-[#2e6b5a]">current</span>}
                       </div>
-                      <span className="rounded bg-[#d4b896]/60 px-1.5 py-0.5 text-[9px] font-bold text-[#6b5236]">Lv. {s.level}</span>
+                      {s.level ? <span className="rounded bg-[#d4b896]/60 px-1.5 py-0.5 text-[9px] font-bold text-[#6b5236]">Lv. {s.level}</span> : null}
                     </div>
                     <p className="mt-2 text-sm font-semibold text-[#5c4a3a]">{s.role}</p>
                     <p className="text-[11px] text-[#8b6b45]">
-                      {s.start} — {s.end}
+                      {dates(s)}
                     </p>
                     <p className="mt-3 text-sm leading-relaxed text-[#4a3a2a]/90">{s.description}</p>
                     <div className="mt-3 flex flex-wrap gap-1.5">

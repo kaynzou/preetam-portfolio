@@ -15,7 +15,7 @@ About: ${profile.bio.map((b) => b.text).join("")}
 ${profile.education ? `Education: ${profile.education.replace("🎓 ", "")}\n` : ""}${profile.hobbies.length ? `Hobbies: ${profile.hobbies.join(", ")}\n` : ""}Skills: ${profile.skills.join(", ")}
 
 ${experience.length ? "Experience (oldest to newest):" : "No work experience listed yet."}
-${experience.map((e) => `- ${e.role} at ${e.company} (${e.start} – ${e.end}): ${e.description} [${e.tags.join(", ")}]`).join("\n")}
+${experience.map((e) => `- ${e.role} at ${e.company} (${e.end ? `${e.start} – ${e.end}` : e.start}): ${e.description} [${e.tags.join(", ")}]`).join("\n")}
 
 Projects:
 ${projects.map((p) => `- ${p.name}: ${p.description} [${p.tags.join(", ")}]${p.link ? ` ${p.link}` : ""}`).join("\n")}

@@ -1,42 +1,42 @@
 // ─────────────────────────────────────────────────────────────
 //  Everything personal lives in this file.
 //  Edit the values below and the whole site updates.
-//  Anything marked TODO is placeholder text waiting for real info.
+//  Empty values / lists hide their section automatically.
 // ─────────────────────────────────────────────────────────────
 
 export const profile = {
   firstName: "Preetam",
   lastName: "Kumar",
-  title: "3RD-YEAR STUDENT", // shown under your name on the character card
-  level: 0, // TODO: your age, shown as "Lv. N" (0 hides it)
+  title: "EXPLORER", // shown under your name on the character card
+  level: 20, // shown as "Lv. 20" — bump it whenever you like (0 hides it)
   photo: "/me.jpg",
-  // Alternate "fantasy" photo for the hover paint-reveal. Must be the same size
-  // and framing as `photo`. Until you add one, a stylised version is generated.
+  // Alternate "fantasy" photo for the hover paint-reveal (same size and framing as `photo`)
   photoReveal: "/me-alt.jpg",
   bio: [
-    { text: "Hi, I'm " },
-    { text: "Preetam", highlight: true },
-    { text: ", a " },
-    { text: "3rd-year student", highlight: true },
-    { text: " who likes building AI systems from the ground up. Lately that's meant " },
-    { text: "retrieval-augmented generation", highlight: true },
-    { text: " and " },
-    { text: "voice interfaces", highlight: true },
-    { text: ": writing the core pipeline myself instead of reaching for end-to-end frameworks, so I understand every piece." },
+    { text: "I'm Preetam, a " },
+    { text: "third-year AI engineering student", highlight: true },
+    { text: " who loves building things, from computer vision projects to generative AI experiments. I'm actively developing my skills in " },
+    { text: "Python, machine learning, and RAG-based systems", highlight: true },
+    { text: ", working toward a career in " },
+    { text: "AI/ML or backend engineering", highlight: true },
+    { text: "." },
   ],
-  education: "", // TODO: e.g. "🎓 College Name 2024–2028" (empty hides it)
-  hobbies: [] as string[], // TODO: e.g. ["Loves photography", "Loves travelling"] (empty hides it)
-  // Taken from your RAG project — add the languages and tools you use too
-  skills: ["RAG", "Embeddings", "Vector Search", "BM25", "Hybrid Search", "LLMs", "Speech-to-Text", "Chunking Strategies", "Guardrails"],
-  email: "", // TODO
-  resume: "", // TODO: e.g. "/resume.pdf" (drop the PDF into /public)
+  education: "🎓 AI Engineering · 3rd year", // add your college name and years if you like
+  hobbies: ["Currently a student", "Building in public", "Loves shipping side projects"],
+  skills: [
+    "Python", "JavaScript", "LLMs", "RAG", "MCP", "Backend", "System Design", "MongoDB", "Node.js",
+    "Pandas", "NumPy", "OpenCV", "MySQL", "FastAPI", "Uvicorn", "C++", "Docker", "Scikit-Learn",
+    "NLP", "AI", "ML",
+  ],
+  email: "preetamk0069@gmail.com",
+  resume: "", // e.g. "/resume.pdf" (drop the PDF into /public)
 };
 
 export type SocialKey = "linkedin" | "github" | "email" | "x" | "instagram" | "youtube";
 
 // Leave a link empty ("") to hide it everywhere.
 export const socials: Record<SocialKey, string> = {
-  linkedin: "", // TODO
+  linkedin: "https://www.linkedin.com/in/preetamkumar17/",
   github: "https://github.com/kaynzou",
   email: profile.email ? `mailto:${profile.email}` : "",
   x: "",
@@ -44,25 +44,39 @@ export const socials: Record<SocialKey, string> = {
   youtube: "",
 };
 
-export const achievements: { rank: string; title: string }[] = [
-  // TODO: e.g. { rank: "1st", title: "College Hackathon" } — empty hides the section
-];
+// e.g. { rank: "1st", title: "College Hackathon" } — empty hides the section
+export const achievements: { rank: string; title: string }[] = [];
 
 export type Stop = {
   company: string;
   role: string;
   start: string;
-  end: string; // use "Present" for your current role
-  level: number; // your age at the time — shown as "Lv. N"
+  end?: string; // use "Present" for what you're doing now
+  level?: number; // your age at the time — shown as "Lv. N"
   description: string;
   tags: string[];
 };
 
-// Oldest first. The ship sails from the first stop to the last.
+// The learning journey, oldest first. The ship sails from the first stop to the last.
+// Add internships, certifications and big milestones as you go.
 export const experience: Stop[] = [
-  // TODO: internships, jobs, clubs, research — oldest first. Empty hides the treasure map.
-  // { company: "Company", role: "Intern", start: "May 2025", end: "Jul 2025", level: 20,
-  //   description: "What you did and the impact.", tags: ["Python"] },
+  {
+    company: "Basecamp",
+    role: "Started AI Engineering",
+    start: "Year 1",
+    description: "Began my AI engineering degree — first contact with Python, data structures, and the fundamentals of machine learning.",
+    tags: ["Python", "ML Fundamentals"],
+  },
+  {
+    company: "Current Quest",
+    role: "Building a Voice-Enabled RAG Pipeline",
+    start: "Year 3",
+    end: "Present",
+    level: 20,
+    description:
+      "Designing and building a retrieval-augmented generation pipeline from scratch, with voice input and output layered on top — covering chunking, embeddings, retrieval, and generation end to end.",
+    tags: ["RAG", "LLMs", "Python", "FastAPI"],
+  },
 ];
 
 export type Project = {
@@ -77,23 +91,45 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    name: "Voice-Enabled RAG System", // TODO: the project's real name, if it has one
+    name: "RAG Pipeline — Built From Scratch",
     description:
-      "A retrieval-augmented generation pipeline built from scratch, with no end-to-end RAG frameworks. It covers custom document processing, multi-strategy chunking, embeddings, BM25 + vector retrieval fused into hybrid search, and grounded LLM answer generation. Speech-to-text makes it conversational, with latency analytics, orchestration and safety guardrails wrapped in a polished interface.",
-    tags: ["RAG", "Hybrid Search", "BM25", "Embeddings", "Speech-to-Text", "LLMs"],
-    // TODO: github: "https://github.com/kaynzou/...", demo: "...", image: "/projects/rag.png"
+      "A voice-enabled, production-grade retrieval-augmented generation pipeline built from scratch in Python — no LangChain, no LlamaIndex. Custom chunking (fixed, semantic, paragraph, section-aware), BM25 + dense hybrid search fused with RRF, cross-encoder reranking, grounded generation with citations, guardrails against hallucination, and voice input via speech-to-text. 101 tests across the pipeline, served with FastAPI + Streamlit.",
+    tags: ["Python", "RAG", "FastAPI", "Hybrid Search", "Voice"],
+    github: "https://github.com/kaynzou/rag-pipeline",
+  },
+  {
+    name: "Gesture Controller",
+    description:
+      "A webcam-based gesture controller for macOS built with OpenCV and MediaPipe. Pinch gestures adjust volume and brightness, a fist minimizes the active window, and an open palm switches between apps — all tracked live through hand landmark detection, no extra hardware needed.",
+    tags: ["Python", "OpenCV", "MediaPipe", "Computer Vision"],
+    github: "https://github.com/kaynzou/gesture-controller",
   },
   {
     name: "This Portfolio",
-    description: "An adventure-themed portfolio with a WebGL night sky, a paint-reveal portrait, a scroll-driven treasure map, and an AI chatbot that answers questions about me.",
+    description:
+      "An adventure-themed portfolio with a WebGL night sky, a paint-reveal portrait, a scroll-driven treasure map, and an AI chatbot that answers questions about me.",
     tags: ["Next.js", "WebGL", "Framer Motion", "Claude"],
     github: "https://github.com/kaynzou/preetam-portfolio",
   },
 ];
 
+// Smaller projects — empty hides the section
 export const sideQuests: { name: string; description: string; tags: string[]; link?: string }[] = [
-  // TODO: smaller projects — empty hides the section
+  {
+    name: "Biased Dice Simulator",
+    description:
+      "A desktop app built with Python and Tkinter that rolls dice — normal or weighted. Pick a number, set it to any target probability, and watch the bias play out over repeated rolls.",
+    tags: ["Python", "Tkinter"],
+    link: "https://github.com/kaynzou/biased-dice",
+  },
+  {
+    name: "Smart Travel Bot",
+    description:
+      "A Python bot that bundles useful travel info together — checks a location, pulls the weather, converts currency, and surfaces quick tips and travel requirements. Built mostly as a fun way to explore and tie together a handful of APIs.",
+    tags: ["Python", "APIs"],
+    link: "https://github.com/kaynzou/smart_travel_bot",
+  },
 ];
 
-// Used by the AI chatbot. Built from the data above, plus anything extra you add here.
-export const extraChatContext = ``;
+// Anything extra the AI chatbot should know about you
+export const extraChatContext = `Career goal: AI/ML or backend engineering.`;
