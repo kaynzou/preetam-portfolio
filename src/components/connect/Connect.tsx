@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { TiltCard } from "@/components/ui/TiltCard";
 import { profile, socials, type SocialKey } from "@/data/profile";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -27,22 +31,33 @@ export function Connect() {
           {cards.map((c, i) => {
             const Icon = icons[c.key];
             return (
-              <ScrollReveal key={c.key} delay={i * 0.06}>
-                <a
+              <ScrollReveal key={c.key} delay={i * 0.08}>
+                <TiltCard intensity={14} className="rounded-2xl">
+                <motion.a
                   href={c.href}
                   target={c.key === "email" ? undefined : "_blank"}
                   rel="noreferrer"
-                  className="flex w-40 flex-col items-center rounded-2xl border border-[#2f4a22]/10 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1.5 hover:shadow-xl"
+                  initial="rest"
+                  whileHover="hover"
+                  whileTap={{ scale: 0.96 }}
+                  variants={{ rest: { y: 0 }, hover: { y: -6 } }}
+                  className="flex w-40 flex-col items-center rounded-2xl border border-[#2f4a22]/10 bg-white p-5 text-center shadow-sm transition-shadow hover:shadow-xl"
                 >
-                  <span style={{ color: c.color }}>
+                  <motion.span
+                    style={{ color: c.color }}
+                    variants={{ rest: { rotate: 0, scale: 1 }, hover: { rotate: [0, -12, 12, -6, 0], scale: 1.15 } }}
+                    transition={{ duration: 0.5 }}
+                  >
                     <Icon className="h-8 w-8" />
-                  </span>
+                  </motion.span>
                   <span className="mt-3 font-display font-bold text-[#1f2d17]">{c.label}</span>
                   <span className="mt-1 text-[11px] text-[#1f2d17]/50">{c.blurb}</span>
-                  <span className="mt-4 rounded-full px-3 py-1 text-[10px] font-bold tracking-wide" style={{ color: c.color, background: `${c.color}18` }}>
-                    {c.cta} →
+                  <span className="mt-4 flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-bold tracking-wide" style={{ color: c.color, background: `${c.color}18` }}>
+                    {c.cta}
+                    <motion.span variants={{ rest: { x: 0 }, hover: { x: 4 } }}>→</motion.span>
                   </span>
-                </a>
+                </motion.a>
+                </TiltCard>
               </ScrollReveal>
             );
           })}
@@ -72,20 +87,30 @@ export function Footer() {
           .map((k) => {
             const Icon = icons[k];
             return (
-              <a
+              <motion.a
                 key={k}
                 href={socials[k]}
                 target={k === "email" ? undefined : "_blank"}
                 rel="noreferrer"
                 aria-label={k}
+                whileHover={{ y: -4, scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 className="grid h-9 w-9 place-items-center rounded-full border border-white/10 text-white/60 transition hover:border-ember/60 hover:text-ember"
               >
                 <Icon className="h-4 w-4" />
-              </a>
+              </motion.a>
             );
           })}
       </div>
-      <p className="mt-6 text-xs text-white/40">the adventure never ends.</p>
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="mt-6 text-xs text-white/40"
+      >
+        the adventure never ends.
+      </motion.p>
       <p className="mt-1 text-[10px] text-white/25">
         © {new Date().getFullYear()} {profile.firstName} {profile.lastName}
       </p>

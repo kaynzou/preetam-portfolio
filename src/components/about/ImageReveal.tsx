@@ -254,7 +254,8 @@ export function ImageReveal({
       gl!.uniform2f(gl!.getUniformLocation(paintProg, "u_lastMouse"), lastMouse.x, lastMouse.y);
       gl!.uniform1f(gl!.getUniformLocation(paintProg, "u_radius"), brushSize);
       gl!.uniform1f(gl!.getUniformLocation(paintProg, "u_hover"), paint);
-      gl!.uniform1f(gl!.getUniformLocation(paintProg, "u_fade"), fadeSpeed);
+      // per the guide: strokes accumulate while painting and only fade once you stop
+      gl!.uniform1f(gl!.getUniformLocation(paintProg, "u_fade"), paint ? 0 : fadeSpeed);
       gl!.uniform1f(gl!.getUniformLocation(paintProg, "u_aspect"), canvas.height / canvas.width);
       drawQuad(paintProg);
       lastMouse.x = mouse.x;

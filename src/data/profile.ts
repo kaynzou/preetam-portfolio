@@ -6,9 +6,9 @@
 
 export const profile = {
   firstName: "Preetam",
-  lastName: "Kumar", // TODO: your last name
-  title: "EXPLORER", // shown under your name on the character card
-  level: 22, // TODO: your age
+  lastName: "Kumar",
+  title: "3RD-YEAR STUDENT", // shown under your name on the character card
+  level: 0, // TODO: your age, shown as "Lv. N" (0 hides it)
   photo: "/me.jpg",
   // Alternate "fantasy" photo for the hover paint-reveal. Must be the same size
   // and framing as `photo`. Until you add one, a stylised version is generated.
@@ -17,18 +17,18 @@ export const profile = {
     { text: "Hi, I'm " },
     { text: "Preetam", highlight: true },
     { text: ", a " },
-    { text: "Computer Science", highlight: true },
-    { text: " student who loves building things and exploring new ideas. I'm a " },
-    { text: "generalist", highlight: true },
-    { text: " who enjoys turning problems into products and experimenting with new technologies." },
-  ], // TODO: rewrite in your own words
-  education: "🎓 Your College 2022–2026", // TODO
-  hobbies: ["Loves photography", "Loves travelling", "Loves playing sports"], // TODO
-  skills: [
-    "TypeScript", "React", "Next.js", "Python", "Node.js", "Java",
-    "PostgreSQL", "MongoDB", "Docker", "AWS", "Git", "Tailwind CSS",
-  ], // TODO
-  email: "you@example.com", // TODO
+    { text: "3rd-year student", highlight: true },
+    { text: " who likes building AI systems from the ground up. Lately that's meant " },
+    { text: "retrieval-augmented generation", highlight: true },
+    { text: " and " },
+    { text: "voice interfaces", highlight: true },
+    { text: ": writing the core pipeline myself instead of reaching for end-to-end frameworks, so I understand every piece." },
+  ],
+  education: "", // TODO: e.g. "🎓 College Name 2024–2028" (empty hides it)
+  hobbies: [] as string[], // TODO: e.g. ["Loves photography", "Loves travelling"] (empty hides it)
+  // Taken from your RAG project — add the languages and tools you use too
+  skills: ["RAG", "Embeddings", "Vector Search", "BM25", "Hybrid Search", "LLMs", "Speech-to-Text", "Chunking Strategies", "Guardrails"],
+  email: "", // TODO
   resume: "", // TODO: e.g. "/resume.pdf" (drop the PDF into /public)
 };
 
@@ -38,18 +38,14 @@ export type SocialKey = "linkedin" | "github" | "email" | "x" | "instagram" | "y
 export const socials: Record<SocialKey, string> = {
   linkedin: "", // TODO
   github: "https://github.com/kaynzou",
-  email: `mailto:${profile.email}`,
+  email: profile.email ? `mailto:${profile.email}` : "",
   x: "",
   instagram: "",
   youtube: "",
 };
 
 export const achievements: { rank: string; title: string }[] = [
-  // TODO: replace with your own
-  { rank: "1st", title: "College Hackathon" },
-  { rank: "Finalist", title: "Smart India Hackathon" },
-  { rank: "Lead", title: "Coding Club" },
-  { rank: "Top 5%", title: "LeetCode Contest" },
+  // TODO: e.g. { rank: "1st", title: "College Hackathon" } — empty hides the section
 ];
 
 export type Stop = {
@@ -64,34 +60,9 @@ export type Stop = {
 
 // Oldest first. The ship sails from the first stop to the last.
 export const experience: Stop[] = [
-  // TODO: replace with your real experience
-  {
-    company: "Open Source",
-    role: "Contributor",
-    start: "Jan 2023",
-    end: "Dec 2023",
-    level: 19,
-    description: "Contributed features and bug fixes to open-source projects. Learned to navigate large codebases and collaborate through code review.",
-    tags: ["Git", "TypeScript"],
-  },
-  {
-    company: "Startup",
-    role: "Software Engineering Intern",
-    start: "May 2024",
-    end: "Jul 2024",
-    level: 20,
-    description: "Built and shipped product features end to end, from API design to UI. Improved page load times and wrote tests for critical flows.",
-    tags: ["React", "Node.js", "PostgreSQL"],
-  },
-  {
-    company: "Company",
-    role: "Software Engineer",
-    start: "Jun 2025",
-    end: "Present",
-    level: 21,
-    description: "Working on backend services and internal tools. Owning features from idea to production.",
-    tags: ["Python", "AWS", "Docker"],
-  },
+  // TODO: internships, jobs, clubs, research — oldest first. Empty hides the treasure map.
+  // { company: "Company", role: "Intern", start: "May 2025", end: "Jul 2025", level: 20,
+  //   description: "What you did and the impact.", tags: ["Python"] },
 ];
 
 export type Project = {
@@ -105,18 +76,12 @@ export type Project = {
 };
 
 export const projects: Project[] = [
-  // TODO: replace with your real projects
   {
-    name: "Project One",
-    description: "A short, punchy description of what this project does, who it's for, and why it's interesting. One or two sentences is perfect.",
-    tags: ["Next.js", "TypeScript", "AI"],
-    github: "https://github.com/kaynzou",
-  },
-  {
-    name: "Project Two",
-    description: "Another project you're proud of. Mention real usage or impact if you have it — numbers make it memorable.",
-    tags: ["Python", "FastAPI", "React"],
-    github: "https://github.com/kaynzou",
+    name: "Voice-Enabled RAG System", // TODO: the project's real name, if it has one
+    description:
+      "A retrieval-augmented generation pipeline built from scratch, with no end-to-end RAG frameworks. It covers custom document processing, multi-strategy chunking, embeddings, BM25 + vector retrieval fused into hybrid search, and grounded LLM answer generation. Speech-to-text makes it conversational, with latency analytics, orchestration and safety guardrails wrapped in a polished interface.",
+    tags: ["RAG", "Hybrid Search", "BM25", "Embeddings", "Speech-to-Text", "LLMs"],
+    // TODO: github: "https://github.com/kaynzou/...", demo: "...", image: "/projects/rag.png"
   },
   {
     name: "This Portfolio",
@@ -127,10 +92,7 @@ export const projects: Project[] = [
 ];
 
 export const sideQuests: { name: string; description: string; tags: string[]; link?: string }[] = [
-  // TODO: smaller projects (or delete them all to hide the section)
-  { name: "Chrome Extension", description: "A small browser extension that automates something annoying.", tags: ["JavaScript"] },
-  { name: "CLI Tool", description: "A command-line tool that saves a few minutes every day.", tags: ["Python"] },
-  { name: "Discord Bot", description: "A bot for a community server with games and moderation.", tags: ["Node.js"] },
+  // TODO: smaller projects — empty hides the section
 ];
 
 // Used by the AI chatbot. Built from the data above, plus anything extra you add here.

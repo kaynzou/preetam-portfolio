@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { useMotionValueEvent, useScroll } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import type { Stop } from "@/data/profile";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -47,7 +47,13 @@ function Decorations() {
       <g transform="translate(330 710)" stroke="#6b5236" fill="none">
         <circle r="30" strokeWidth="1" />
         <circle r="22" strokeWidth="0.6" strokeDasharray="2 3" />
-        <path d="M0 -34 L6 0 L0 34 L-6 0 Z" fill="#8b6b45" stroke="none" />
+        <motion.path
+          d="M0 -34 L6 0 L0 34 L-6 0 Z"
+          fill="#8b6b45"
+          stroke="none"
+          animate={{ rotate: [-8, 8, -8] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
         <path d="M-34 0 L0 5 L34 0 L0 -5 Z" fill="#a8875c" stroke="none" />
         <text y="-38" textAnchor="middle" fontSize="10" fill="#6b5236" stroke="none" fontWeight="700">N</text>
         <text y="48" textAnchor="middle" fontSize="10" fill="#6b5236" stroke="none" fontWeight="700">S</text>
@@ -56,7 +62,15 @@ function Decorations() {
       </g>
       {/* Waves */}
       {[[40, 620], [300, 420], [60, 300], [320, 180], [200, 560]].map(([x, y], i) => (
-        <path key={i} d={`M${x} ${y} q 6 -6 12 0 t 12 0 t 12 0`} stroke="#7a8f9a" strokeWidth="1.5" fill="none" />
+        <motion.path
+          key={i}
+          d={`M${x} ${y} q 6 -6 12 0 t 12 0 t 12 0`}
+          stroke="#7a8f9a"
+          strokeWidth="1.5"
+          fill="none"
+          animate={{ x: [0, 6, 0], opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 3 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
+        />
       ))}
       {/* Mountains */}
       {[[40, 470], [70, 480], [340, 290], [360, 300]].map(([x, y], i) => (
@@ -81,7 +95,9 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
   const pathRef = useRef<SVGPathElement>(null);
   const sailRef = useRef<SVGPathElement>(null);
   const { pts, d, toLastStop } = useMemo(() => layout(stops.length), [stops.length]);
-  const [ship, setShip] = useState({ x: pts[0].x, y: pts[0].y, angle: -90 });
+  const [ship, setShip] = useState({ x: pts[0].x, y: pts[0].y, angle: -90, sailed: 0 });
+  const [reached, setReached] = useState(1); // how many stops the ship has arrived at
+  const stopLengths = useRef<number[] | null>(null);
 
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start 0.2", "end end"] });
 
@@ -94,7 +110,21 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
     const p = Math.min(Math.max(latest, 0), 1) * maxP;
     const point = path.getPointAtLength(p * total);
     const ahead = path.getPointAtLength(Math.min(p + 0.01, 1) * total);
-    setShip({ x: point.x, y: point.y, angle: (Math.atan2(ahead.y - point.y, ahead.x - point.x) * 180) / Math.PI });
+    setShip({ x: point.x, y: point.y, angle: (Math.atan2(ahead.y - point.y, ahead.x - point.x) * 180) / Math.PI, sailed: p * total });
+
+    // where along the path each stop sits (sampled once, lazily)
+    if (!stopLengths.current) {
+      stopLengths.current = pts.slice(0, stops.length).map((pt) => {
+        let best = 0, bestDist = Infinity;
+        for (let l = 0; l <= total; l += total / 400) {
+          const q = path.getPointAtLength(l);
+          const dist = (q.x - pt.x) ** 2 + (q.y - pt.y) ** 2;
+          if (dist < bestDist) [best, bestDist] = [l, dist];
+        }
+        return best;
+      });
+    }
+    setReached(stopLengths.current.filter((l) => l <= p * total + 4).length);
   });
 
   const scrollToCard = (i: number) =>
@@ -123,37 +153,73 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
               <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full">
                 <Decorations />
                 <path ref={sailRef} d={toLastStop} fill="none" stroke="none" />
-                <path ref={pathRef} d={d} fill="none" stroke="#8b6b45" strokeWidth="2.5" strokeDasharray="6 8" strokeLinecap="round" />
+                <path ref={pathRef} d={d} fill="none" stroke="#8b6b45" strokeWidth="2.5" strokeDasharray="6 8" strokeLinecap="round" opacity="0.6" />
+                {/* the trail already sailed, drawn in solid behind the ship */}
+                <path
+                  d={d}
+                  fill="none"
+                  stroke="#7a3b1c"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  // a gap far longer than the path, so only the sailed part is ever drawn
+                  strokeDasharray={`${ship.sailed} 100000`}
+                  opacity="0.75"
+                />
                 {/* X marks the spot */}
                 <g transform={`translate(${pts[pts.length - 1].x} ${pts[pts.length - 1].y})`} stroke="#c0392b" strokeWidth="5" strokeLinecap="round">
-                  <path d="M-11 -11 L11 11 M11 -11 L-11 11" />
+                  <motion.path
+                    d="M-11 -11 L11 11 M11 -11 L-11 11"
+                    animate={{ scale: [1, 1.15, 1] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                  />
                 </g>
               </svg>
 
               {stops.map((s, i) => {
                 const p = pts[i];
                 const current = s.end.toLowerCase() === "present";
+                const arrived = i < reached;
                 return (
-                  <button
+                  <motion.button
                     key={i}
                     onClick={() => scrollToCard(i)}
-                    className="group absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-                    style={{ left: `${(p.x / W) * 100}%`, top: `${(p.y / H) * 100}%` }}
+                    initial={{ opacity: 0, scale: 0.4 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ type: "spring", stiffness: 300, damping: 18, delay: i * 0.12 }}
+                    className="group absolute flex flex-col items-center"
+                    style={{ left: `${(p.x / W) * 100}%`, top: `${(p.y / H) * 100}%`, x: "-50%", y: "-50%" }}
                   >
                     <span className="mb-1 rounded-full bg-[#3a2a1a] px-2 py-0.5 text-[9px] font-bold text-[#f5e6d0]">Lv. {s.level}</span>
-                    <span
-                      className={`grid h-9 w-9 place-items-center rounded-full border-2 font-display text-sm font-bold transition group-hover:scale-110 ${
-                        current ? "border-[#2e6b5a] bg-[#3f8a74] text-white shadow-[0_0_0_6px_rgba(63,138,116,0.25)]" : "border-[#f5e6d0] bg-[#5c4a3a] text-[#f5e6d0]"
+                    <motion.span
+                      // pops when the ship arrives at this stop
+                      animate={arrived ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                      whileHover={{ scale: 1.15 }}
+                      className={`relative grid h-9 w-9 place-items-center rounded-full border-2 font-display text-sm font-bold transition-colors duration-500 ${
+                        current && arrived
+                          ? "border-[#2e6b5a] bg-[#3f8a74] text-white shadow-[0_0_0_6px_rgba(63,138,116,0.25)]"
+                          : arrived
+                            ? "border-[#f5e6d0] bg-[#5c4a3a] text-[#f5e6d0]"
+                            : "border-[#8b6b45]/50 bg-[#c4a77d] text-[#6b5236]"
                       }`}
                     >
+                      {current && arrived && (
+                        <motion.span
+                          aria-hidden
+                          className="absolute inset-0 rounded-full border-2 border-[#3f8a74]"
+                          animate={{ scale: [1, 1.9], opacity: [0.7, 0] }}
+                          transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+                        />
+                      )}
                       {s.company[0]}
-                    </span>
+                    </motion.span>
                     <span className="mt-1 whitespace-nowrap text-[10px] font-semibold text-[#3a2a1a]">{s.company}</span>
                     <span className="whitespace-nowrap text-[9px] text-[#6b5236]">
                       {s.start} — {s.end}
                     </span>
                     {current && <span className="text-[9px] font-bold text-[#2e6b5a]">You are here</span>}
-                  </button>
+                  </motion.button>
                 );
               })}
               <div
@@ -168,11 +234,22 @@ export function TreasureMap({ stops }: { stops: Stop[] }) {
                 style={{
                   left: `${(ship.x / W) * 100}%`,
                   top: `${(ship.y / H) * 100}%`,
-                  transform: `translate(-50%, -50%) rotate(${ship.angle + 90}deg)`,
+                  // sits just beside the trail so it never covers a stop marker
+                  transform: `translate(-50%, -50%) translateX(26px) rotate(${ship.angle + 90}deg)`,
                   transition: "left 0.1s linear, top 0.1s linear",
                 }}
               >
-                <Ship />
+                {/* wake ripples */}
+                <motion.span
+                  aria-hidden
+                  className="absolute left-1/2 top-[70%] h-4 w-8 -translate-x-1/2 rounded-full border border-[#f5e6d0]/70"
+                  animate={{ scale: [0.6, 1.6], opacity: [0.8, 0] }}
+                  transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
+                />
+                {/* gentle rocking on the waves */}
+                <motion.div animate={{ rotate: [-5, 5, -5], y: [0, -2, 0] }} transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}>
+                  <Ship />
+                </motion.div>
               </div>
             </div>
           </div>

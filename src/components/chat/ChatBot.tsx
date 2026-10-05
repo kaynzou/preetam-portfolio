@@ -24,6 +24,7 @@ type RecognitionCtor = new () => Recognition;
 
 export function ChatBot() {
   const [open, setOpen] = useState(false);
+  const [opened, setOpened] = useState(false); // stop the attention ping after first open
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -90,7 +91,7 @@ export function ChatBot() {
           res.status === 429
             ? "Whoa, that's a lot of questions! Take a breather and try again in a bit."
             : res.status === 503
-              ? `My chat assistant is still being set up. In the meantime, reach me at ${profile.email}.`
+              ? `My chat assistant is still being set up. In the meantime, ${profile.email ? `reach me at ${profile.email}` : "use the links on this page to reach me"}.`
               : "Something went wrong. Please try again.";
         setMessages([...history, { role: "assistant", content: reason }]);
         return;
@@ -131,6 +132,7 @@ export function ChatBot() {
 
   function toggleOpen() {
     setMicSupported(Boolean(getRecognition()));
+    setOpened(true);
     setOpen((o) => !o);
   }
 
@@ -155,24 +157,62 @@ export function ChatBot() {
 
   return (
     <>
-      <button
+      <motion.button
         onClick={toggleOpen}
         aria-label={open ? "Close chat" : "Ask me anything"}
-        className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-2xl border border-gold/50 bg-gradient-to-b from-[#3a2d1c] to-[#1f1912] text-gold shadow-[0_0_24px_rgba(232,176,75,0.35)] transition hover:scale-105"
+        initial={{ scale: 0, rotate: -45 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 16, delay: 1.5 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
+        className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-2xl border border-gold/50 bg-gradient-to-b from-[#3a2d1c] to-[#1f1912] text-gold shadow-[0_0_24px_rgba(232,176,75,0.35)]"
       >
-        {open ? (
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-            {/* quill */}
-            <path d="M20 4C12 4 7 9 6 18l-2 2" />
-            <path d="M20 4c0 7-4 12-12 13" />
-            <path d="M9 13h5M11 10h5" />
-          </svg>
+        {!opened && (
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-2xl border-2 border-gold/60"
+            animate={{ scale: [1, 1.5], opacity: [0.7, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut", delay: 2.5 }}
+          />
         )}
-      </button>
+        <AnimatePresence mode="wait" initial={false}>
+          {open ? (
+            <motion.svg
+              key="close"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              viewBox="0 0 24 24"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </motion.svg>
+          ) : (
+            <motion.svg
+              key="quill"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              viewBox="0 0 24 24"
+              className="h-7 w-7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            >
+              {/* quill */}
+              <path d="M20 4C12 4 7 9 6 18l-2 2" />
+              <path d="M20 4c0 7-4 12-12 13" />
+              <path d="M9 13h5M11 10h5" />
+            </motion.svg>
+          )}
+        </AnimatePresence>
+      </motion.button>
 
       <AnimatePresence>
         {open && (
@@ -214,17 +254,32 @@ export function ChatBot() {
                     Hey, traveller! 👋 Ask me anything about {profile.firstName}: projects, experience, or what they&apos;re up to.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {suggestions.map((s) => (
-                      <button key={s} onClick={() => sendMessage(s)} className="rounded-full border border-gold/30 px-3 py-1 text-xs text-gold/90 transition hover:bg-gold/10">
+                    {suggestions.map((s, i) => (
+                      <motion.button
+                        key={s}
+                        onClick={() => sendMessage(s)}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 + i * 0.08 }}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="rounded-full border border-gold/30 px-3 py-1 text-xs text-gold/90 transition-colors hover:bg-gold/10"
+                      >
                         {s}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
               )}
               {messages.map((m, i) =>
                 m.content || m.role === "user" ? (
-                  <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10, x: m.role === "user" ? 12 : -12 }}
+                    animate={{ opacity: 1, y: 0, x: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
                     <p
                       className={`max-w-[85%] whitespace-pre-wrap px-3.5 py-2.5 text-sm ${
                         m.role === "user" ? "rounded-2xl rounded-tr-sm bg-ember text-[#1a0f08]" : "rounded-2xl rounded-tl-sm bg-white/5 text-[#f6ecd9]/85"
@@ -232,7 +287,7 @@ export function ChatBot() {
                     >
                       {m.content}
                     </p>
-                  </div>
+                  </motion.div>
                 ) : null,
               )}
               {thinking && (
@@ -249,11 +304,18 @@ export function ChatBot() {
               )}
               {limitReached && !busy && (
                 <p className="rounded-xl border border-gold/20 bg-gold/5 px-3 py-2 text-center text-xs text-[#f6ecd9]/70">
-                  That&apos;s all the questions for this campfire! For more, reach out at{" "}
-                  <a className="text-gold underline" href={`mailto:${profile.email}`}>
-                    {profile.email}
-                  </a>
-                  .
+                  That&apos;s all the questions for this campfire!{" "}
+                  {profile.email ? (
+                    <>
+                      For more, reach out at{" "}
+                      <a className="text-gold underline" href={`mailto:${profile.email}`}>
+                        {profile.email}
+                      </a>
+                      .
+                    </>
+                  ) : (
+                    "For more, use the links on this page."
+                  )}
                 </p>
               )}
             </div>

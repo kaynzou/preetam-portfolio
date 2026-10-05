@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { profile } from "@/data/profile";
 import { StarField } from "./StarField";
 import { Campfire } from "./Campfire";
@@ -15,17 +16,99 @@ const fireflies = [
   { left: "48%", bottom: "12%", fx: "14px", fy: "-22px", delay: "4s" },
 ];
 
-export function Hero() {
+// Deterministic pseudo-random so server and client render the same forest
+function seeded(seed: number) {
+  return () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+}
+
+type Layer = { base: number; amp: number; freq: number; phase: number; color: string; trees: number; treeH: [number, number]; seed: number };
+
+const layers: Layer[] = [
+  { base: 150, amp: 28, freq: 0.0042, phase: 0.6, color: "#14241a", trees: 26, treeH: [26, 46], seed: 7 },
+  { base: 215, amp: 22, freq: 0.0055, phase: 2.1, color: "#11201a", trees: 18, treeH: [40, 70], seed: 21 },
+  { base: 290, amp: 16, freq: 0.0048, phase: 4.0, color: "#0b1711", trees: 12, treeH: [60, 100], seed: 42 },
+];
+
+const hillY = (l: Layer, x: number) => l.base + l.amp * Math.sin(x * l.freq + l.phase) + l.amp * 0.4 * Math.sin(x * l.freq * 2.7 + l.phase * 1.3);
+
+const r = (n: number) => Math.round(n * 10) / 10;
+
+function pine(x: number, y: number, h: number) {
+  const w = h * 0.42;
+  // three stacked tiers + trunk
+  return [0, 1, 2]
+    .map((i) => {
+      const top = y - h + i * h * 0.24;
+      const bottom = y - h * 0.18 + i * h * 0.06 - (2 - i) * h * 0.16;
+      const half = (w / 2) * (0.6 + i * 0.25);
+      return `M${r(x)} ${r(top)} L${r(x + half)} ${r(bottom)} L${r(x - half)} ${r(bottom)} Z`;
+    })
+    .concat(`M${r(x - h * 0.04)} ${r(y - h * 0.25)} h${r(h * 0.08)} v${r(h * 0.3)} h${r(-h * 0.08)} Z`)
+    .join(" ");
+}
+
+function HillLayer({ layer, y }: { layer: Layer; y: MotionValue<number> | number }) {
+  let d = `M0 400 L0 ${r(hillY(layer, 0))}`;
+  for (let x = 20; x <= 1440; x += 20) d += ` L${x} ${r(hillY(layer, x))}`;
+  d += " L1440 400 Z";
+
+  const rand = seeded(layer.seed);
+  const trees: string[] = [];
+  for (let i = 0; i < layer.trees; i++) {
+    const x = (i + rand()) * (1440 / layer.trees);
+    // leave a clearing in the middle for the campfire
+    if (Math.abs(x - 720) < 140 && layer.base > 200) continue;
+    const h = layer.treeH[0] + rand() * (layer.treeH[1] - layer.treeH[0]);
+    trees.push(pine(x, hillY(layer, x) + 6, h));
+  }
+
   return (
-    <section id="top" className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[#080E1C]">
+    <motion.svg
+      style={{ y }}
+      className="absolute bottom-0 left-0 h-[48%] w-full"
+      viewBox="0 0 1440 400"
+      preserveAspectRatio="xMidYMax slice"
+      aria-hidden
+    >
+      <path d={trees.join(" ")} fill={layer.color} />
+      <path d={d} fill={layer.color} />
+    </motion.svg>
+  );
+}
+
+export function Hero() {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const p = (to: number) => (reduce ? 0 : to);
+
+  // Parallax: distant things move slower than near things
+  const starsY = useTransform(scrollYProgress, [0, 1], [0, p(220)]);
+  const moonY = useTransform(scrollYProgress, [0, 1], [0, p(260)]);
+  const farY = useTransform(scrollYProgress, [0, 1], [0, p(140)]);
+  const midY = useTransform(scrollYProgress, [0, 1], [0, p(80)]);
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, p(-160)]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.6], [1, reduce ? 1 : 0]);
+
+  return (
+    <section ref={ref} id="top" className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-[#080E1C]">
       {/* Sky */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#080E1C] via-[#0B1420] to-[#0E1A16]" />
-      <StarField className="absolute inset-0 h-full w-full" />
+      <motion.div style={{ y: starsY }} className="absolute inset-0">
+        <StarField className="h-full w-full" />
+      </motion.div>
 
       {/* Moon */}
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.4, ease: "easeOut" }}
         className="absolute rounded-full"
         style={{
+          y: moonY,
           top: "9%",
           right: "12%",
           width: 50,
@@ -35,29 +118,23 @@ export function Hero() {
         }}
       />
 
-      {/* Rolling hills */}
-      <svg
-        className="absolute bottom-0 left-0 w-full h-[48%]"
-        viewBox="0 0 1440 400"
-        preserveAspectRatio="none"
-        aria-hidden
-      >
-        <path d="M0 150 C 200 90 380 170 560 120 C 760 60 940 150 1120 110 C 1280 80 1380 120 1440 110 L1440 400 L0 400 Z" fill="#14241a" />
-        <path d="M0 220 C 180 170 340 240 540 200 C 720 160 900 230 1080 190 C 1240 160 1360 200 1440 190 L1440 400 L0 400 Z" fill="#11201a" />
-        <path d="M0 290 C 220 250 420 310 640 280 C 860 250 1040 310 1240 280 C 1340 265 1400 280 1440 275 L1440 400 L0 400 Z" fill="#0d1a13" />
-      </svg>
+      {/* Forest on rolling hills */}
+      <HillLayer layer={layers[0]} y={farY} />
+      <HillLayer layer={layers[1]} y={midY} />
+      <HillLayer layer={layers[2]} y={0} />
 
       {/* Campfire glow */}
-      <div
-        className="absolute pointer-events-none"
+      <motion.div
+        className="pointer-events-none absolute"
+        animate={{ opacity: [0.85, 1, 0.9, 1, 0.85] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         style={{
           left: "50%",
           bottom: "-5%",
-          transform: "translateX(-50%)",
+          x: "-50%",
           width: "700px",
           height: "450px",
-          background:
-            "radial-gradient(ellipse at 50% 70%, rgba(255,130,54,0.2) 0%, rgba(255,184,0,0.07) 38%, transparent 68%)",
+          background: "radial-gradient(ellipse at 50% 70%, rgba(255,130,54,0.2) 0%, rgba(255,184,0,0.07) 38%, transparent 68%)",
         }}
       />
 
@@ -69,43 +146,70 @@ export function Hero() {
         />
       ))}
 
-      <div className="absolute bottom-[5%] left-1/2 -translate-x-1/2">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.9, type: "spring", bounce: 0.4 }}
+        className="absolute bottom-[5%] left-1/2 -translate-x-1/2"
+      >
         <Campfire />
-      </div>
+      </motion.div>
 
       {/* Title */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 pb-[12vh] text-center">
+      <motion.div
+        style={{ y: titleY, opacity: titleOpacity }}
+        className="relative z-10 flex h-full flex-col items-center justify-center px-4 pb-[12vh] text-center"
+      >
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-4 text-[10px] md:text-xs font-semibold tracking-[0.5em] text-[#f6ecd9]/45"
+          initial={{ opacity: 0, y: 20, letterSpacing: "0.2em" }}
+          animate={{ opacity: 1, y: 0, letterSpacing: "0.5em" }}
+          transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+          className="mb-4 text-[10px] font-semibold text-[#f6ecd9]/45 md:text-xs"
         >
           A NEW QUEST BEGINS
         </motion.p>
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.35 }}
-          className="font-bold leading-[0.9] tracking-tight"
-        >
-          <span className="block text-[18vw] md:text-[9.5rem] text-ember drop-shadow-[0_0_30px_rgba(240,136,74,0.25)]">
+        <h1 className="font-bold leading-[0.9] tracking-tight">
+          <motion.span
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.35, ease: "easeOut" }}
+            className="block text-[18vw] text-ember drop-shadow-[0_0_30px_rgba(240,136,74,0.25)] md:text-[9.5rem]"
+          >
             {profile.firstName}
-          </span>
-          <span className="block text-[18vw] md:text-[9.5rem] text-[#f8f1e4]">{profile.lastName}</span>
-        </motion.h1>
-      </div>
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.55, ease: "easeOut" }}
+            className="block text-[18vw] text-[#f8f1e4] md:text-[9.5rem]"
+          >
+            {profile.lastName}
+          </motion.span>
+        </h1>
+      </motion.div>
 
       {/* Scroll indicator */}
-      <a
+      <motion.a
         href="#about"
-        className="absolute bottom-6 left-6 md:left-10 z-10 flex flex-col items-center gap-1 text-[10px] font-semibold tracking-[0.3em] text-[#f6ecd9]/40 hover:text-[#f6ecd9]/80 transition-colors"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.6, duration: 0.8 }}
+        className="absolute bottom-6 left-6 z-10 flex flex-col items-center gap-1 text-[10px] font-semibold tracking-[0.3em] text-[#f6ecd9]/40 transition-colors hover:text-[#f6ecd9]/80 md:left-10"
       >
         VENTURE FORTH
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "bob 1.6s ease-in-out infinite" }}>
+        <motion.svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        >
           <path d="M6 9l6 6 6-6" />
-        </svg>
-      </a>
+        </motion.svg>
+      </motion.a>
     </section>
   );
 }
