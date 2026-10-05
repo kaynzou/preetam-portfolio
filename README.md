@@ -31,6 +31,6 @@ Copy `.env.example` to `.env.local` and fill in the keys:
 
 Without keys the site works normally and the chat politely says it's not set up yet. The chat is rate-limited to 20 requests per IP per hour and 10 questions per session.
 
-## Deploying
+## Live Demo
 
-Import the repo at [vercel.com/new](https://vercel.com/new), add the same environment variables in the project settings, and deploy.
+https://preetam-portfolio-wheat.vercel.app/
