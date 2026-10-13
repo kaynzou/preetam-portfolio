@@ -22,15 +22,6 @@ npm install
 npm run dev
 ```
 
-## AI chatbot (optional)
-
-Copy `.env.example` to `.env.local` and fill in the keys:
-
-- `ANTHROPIC_API_KEY` — enables the chat assistant (console.anthropic.com)
-- `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID` — enables voice replies in a cloned voice (elevenlabs.io)
-
-Without keys the site works normally and the chat politely says it's not set up yet. The chat is rate-limited to 20 requests per IP per hour and 10 questions per session.
-
 ## Live Demo
 
 https://preetam-portfolio-wheat.vercel.app/
