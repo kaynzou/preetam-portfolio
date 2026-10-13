@@ -2,7 +2,7 @@
 
 An adventure-themed portfolio: a WebGL night sky with shooting stars and a campfire, a character-sheet "About" card with a paint-reveal portrait, a treasure-map experience timeline with a scroll-driven ship, a quest-log of projects, and an AI chatbot that answers questions about me.
 
-Built with Next.js, TypeScript, Tailwind CSS v4, Framer Motion, raw WebGL and the Claude API.
+Built with Next.js, TypeScript, Tailwind CSS v4, Framer Motion, raw WebGL.
 
 <p align="center">
   <img src="docs/preview.jpg" alt="Screenshots of the portfolio: a night-sky hero with a campfire, the Character Sheet about section, the treasure-map journey timeline, and the Projects quest log" width="100%">
@@ -29,9 +29,3 @@ npm run dev
 ## 🖥️ Live Site
 
 👉 [preetam-portfolio-wheat.vercel.app](https://preetam-portfolio-wheat.vercel.app/)
-
----
-
-## 🙏 Credits
-
-Design inspired by [Shubham Goyal](https://www.shubhamgl.com/) and his guide, [How I Built My Portfolio Website](https://silken-zenobia-635.notion.site/How-I-Built-My-Portfolio-Website-34ddf1837fb180f99022fd41e9769735).
