@@ -93,7 +93,7 @@ export const projects: Project[] = [
   {
     name: "Viralyst",
     description:
-      "Test your product demo video before you post it. Viralyst simulates an audience of personas, inside and outside your target market, plus an Instagram-style algorithm that decides how far the video spreads, wave by wave. It analyzes the video with ffmpeg, Whisper and Claude vision, then reports the odds of it taking off over 200 runs, who engaged, and what to fix. Includes AI personas played by Claude, A/B testing with confidence ranges, and calibration against real results.",
+      "Test your product demo video before you post it. Viralyst simulates an audience of personas, inside and outside your target market, plus an Instagram-style algorithm that decides how far the video spreads, wave by wave. It analyzes the video with ffmpeg, Whisper and Claude vision, then reports the odds of it taking off over 200 runs, who engaged, and what to fix. Includes AI personas played by Claude, A/B testing with confidence ranges, and tooling to calibrate the simulation against real Instagram results.",
     tags: ["Python", "FastAPI", "Claude", "Whisper", "Next.js", "Simulation"],
     image: "/projects/viralyst.jpg",
     link: "https://viralyst-eosin.vercel.app",
