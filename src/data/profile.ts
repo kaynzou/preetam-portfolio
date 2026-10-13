@@ -91,6 +91,15 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    name: "Viralyst",
+    description:
+      "Test your product demo video before you post it. Viralyst simulates an audience of personas, inside and outside your target market, plus an Instagram-style algorithm that decides how far the video spreads, wave by wave. It analyzes the video with ffmpeg, Whisper and Claude vision, then reports the odds of it taking off over 200 runs, who engaged, and what to fix. Includes AI personas played by Claude, A/B testing with confidence ranges, and calibration against real results.",
+    tags: ["Python", "FastAPI", "Claude", "Whisper", "Next.js", "Simulation"],
+    image: "/projects/viralyst.jpg",
+    link: "https://viralyst-eosin.vercel.app",
+    github: "https://github.com/kaynzou/Viralyst",
+  },
+  {
     name: "RAG Pipeline — Built From Scratch",
     description:
       "A voice-enabled, production-grade retrieval-augmented generation pipeline built from scratch in Python — no LangChain, no LlamaIndex. Custom chunking (fixed, semantic, paragraph, section-aware), BM25 + dense hybrid search fused with RRF, cross-encoder reranking, grounded generation with citations, guardrails against hallucination, and voice input via speech-to-text. 101 tests across the pipeline, served with FastAPI + Streamlit.",
